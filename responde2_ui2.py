@@ -42,6 +42,10 @@ class MainUI(QMainWindow):
   #list_respuestas_tipicas
   #input_ticket
 
+  #Dialog credenciales ps
+  # input_usuario_ps
+  # input_pass_ps
+
 # inicializamos el crawler
 bot = ps.web_bot()
 bot.login_gmail()
