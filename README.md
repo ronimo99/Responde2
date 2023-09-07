@@ -5,12 +5,10 @@
 * Veremos
 
 ### Instalación
-Se necesita:
+#### Se necesita:
  * Ya veremos.
- 
-Proceso:
- * No disponible por el momento.
-
+#### Proceso:
+ * No existe de momento.
 ### Uso
 Hay que rellenar el archivo credenciales.py con las credenciales del usuario de [https://soporteproservice.nexe.com/login](https://soporteproservice.nexe.com/login) para que pueda acceder a la página.
 
