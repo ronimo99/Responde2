@@ -1,4 +1,6 @@
 /__pycache__
 /.vscode
+/dist
+/build
 geckodriver.log
 gui_testing.py
