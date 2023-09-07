@@ -2,5 +2,7 @@
 /.vscode
 /dist
 /build
-geckodriver.log
+*.log
+*.spec
+credenciales.py
 gui_testing.py

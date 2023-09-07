@@ -1,13 +1,18 @@
-import sys
+import sys,  os
 from PyQt6.QtWidgets import (
     QMainWindow, QApplication,
     QLabel, QToolBar, QStatusBar, QCheckBox,
     QHBoxLayout, QVBoxLayout, QLineEdit, 
-    QWidget, QPushButton, QListWidget, QComboBox
+    QWidget, QPushButton, QListWidget, QComboBox,
+    QDialog, 
 )
 from PyQt6.uic import loadUi
+from PyQt6 import QtGui
+from PyQt6.QtCore import QSize, Qt
+import ps_auto_responder as ps
 import ps_auto_responder as ps
 
+basedir = os.path.dirname(__file__)
 
 class MainUI(QMainWindow):
   
@@ -53,6 +58,7 @@ bot.login_ps()
 
 # abrimos la interfaz grafica
 app = QApplication(sys.argv)
-ui = MainUI()
-ui.show()
+window = MainUI()
+window.setWindowIcon(QtGui.QIcon(os.path.join(basedir, "car--plus.png")))
+window.show()
 app.exec()
