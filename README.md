@@ -6,7 +6,6 @@
 ### Instalación
 * Está en releases.
 #### Se necesita:
-* Firefox
 * Algo con lo que descomprimir la carpeta
 * Sentido común
 #### Proceso:
