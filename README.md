@@ -6,13 +6,14 @@
 ### Instalación
 * Está en releases.
 #### Se necesita:
-* Algo con lo que descomprimir la carpeta
 * Sentido común
+##### ¿Te falta la contraseña para descomprimir los archivos?
+Entonces la app no es para ti.
 #### Proceso:
 * ¿Qué proceso?
 ### Uso
 ~~Hay que rellenar el archivo credenciales.py con las credenciales del usuario de [https://soporteproservice.nexe.com/login](https://soporteproservice.nexe.com/login) para que pueda acceder a la página.~~ 
 
-Pon tu nombre y user cuando te lo pida. Responde a tickets.
+Pon tu nombre y usuario cuando te lo pida. Responde a tickets.
 
 2023 Robert Nieto Molina
