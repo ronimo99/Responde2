@@ -2,6 +2,7 @@
 /.vscode
 /dist
 /build
+/icons
 *.log
 *.spec
 credenciales.py
