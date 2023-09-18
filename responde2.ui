@@ -545,6 +545,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="maxLength">
+        <number>8</number>
+       </property>
        <property name="placeholderText">
         <string>#ticket</string>
        </property>
@@ -589,6 +592,16 @@
        <item>
         <property name="text">
          <string>No Hay Ficheros</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Caso Qsac</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Caso Generix</string>
         </property>
        </item>
       </widget>

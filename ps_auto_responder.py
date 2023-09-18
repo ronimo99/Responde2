@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 2023 Robert Nieto Molina
 
@@ -55,10 +54,10 @@ class web_bot():
         print("Web Driver inicializado.")
         self.driver.maximize_window()
         print("Pantalla maximizada.")
-        self.driver.get("https://gmail.com")
-        print("Entrando a https://gmail.com.")
         
     def login_gmail(self): 
+        self.driver.get("https://gmail.com")
+        print("Entrando a https://gmail.com.")
         #  introduce el usuario
         input_usuario = self.driver.find_element(By.NAME, "identifier")
         input_usuario.send_keys(usuario_gmail)
@@ -78,8 +77,12 @@ class web_bot():
         self.gmail_tab = self.driver.current_window_handle
         print("Guardando el Window Handle de la pestaña.")
         
-    def login_ps(self): 
+    def login_ps(self, user=None, password=None): 
         # loguea en la web de ticketing de soporte proservice
+        global usuario_ps
+        global password_ps
+        if user: usuario_ps = user
+        if password: password_ps = password
         self.driver.switch_to.new_window("tab")
         print("Abriendo pestaña nueva en https://soporteproservice.nexe.com/login.")
         self.driver.get("https://soporteproservice.nexe.com/login")
@@ -96,10 +99,14 @@ class web_bot():
         print("Guardando el Window Handle de la pestaña.")
 
         # pulsa la opción para ver los tickets de todos los usuarios
+        #resulta que la ventana de responder tickets interfiere con éste seleccionable así que fuera
+        """
         usuarios = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div/table/thead/tr[2]/th[5]/select")
         select = Select(usuarios)
         select.select_by_visible_text("")
         print("Cambiambiada la vista a \"todos los tickets\".")
+        """
+        
 
     def responde1(self): # manera 1, una mierda
         input_busqueda = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div/div[2]/label/input")
@@ -111,19 +118,23 @@ class web_bot():
     # prerequisitos: necesita un numero de ticket que exista de la plataforma de tickets y un tipo que puede no estar especificado, para respuestas automáticas de tickets habituales
     def responde2(self, numero_ticket, tipo=None):
         # inicializamos variables
+        print("Limpiamos la solicitud anterior.")
         self.solicitud = ""
 
         # cambiamos de pestaña a la del ticket
+        print("Se cambia a la pestaña a la del ticket.")
         self.driver.switch_to.new_window("tab")
         self.driver.get("https://soporteproservice.nexe.com/tickets/" + str(numero_ticket))
         print("Cambiando a la pestaña del ticket.")
 
         # asunto del correo de respuesta
+        print("Se copia el asunto del ticket.")
         asunto = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div[1]/h1")
         self.asunto = asunto.text
         print("Copiado el asunto.")
 
         # solicitud, hay que buscar todas las líneas <p>
+        print("Se copia la solicitud.")
         for n in range(1, 20):
             try:
                 solicitud = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div[1]/p[" + str(n) + "]")
@@ -132,7 +143,6 @@ class web_bot():
                     self.solicitud += "\n"
             except:
                 break
-        print("Copiados los asuntos ")
         
         # correo
         correo = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div[1]/div[4]/div[4]/b[9]")
@@ -190,6 +200,10 @@ class web_bot():
                     solicitud_input.send_keys("Se ha dado entrada, (X) líneas en total. \n")
                 case "No Hay Ficheros":
                     solicitud_input.send_keys("Buenos días,\nNos podría indicar la situación actual y actuar según indicaciones:\n1. ¿Le han entrado los ficheros en este momento?\nSI. Infórmenos de la hora estimada de entrada del fichero\nNO. ¿Lo tiene facturado en ET2000?\nSI. Envíenos una captura de pantalla de ET2000 en la que se vea, el número de\npedido, la fecha, el estado y algunas referencias. Necesitaría también una\nimagen del albarán que trae el transportista con el material, en el que se vea\nel  número de boleto y las referencias de las piezas.\nNO. Contacte con su operador logístico y confirme si ha sido facturado. \n")
+                case "Caso Qsac":
+                    solicitud_input.send_keys("Se ha abierto incidente con Quiter")
+                case "Caso Generix":
+                    solicitud_input.send_keys("Se ha abierto incidente con SGA")
                 case _:
                     print("Doesen't match any cases, skipping tipo.")
             print("Entramos en el if de tipo \"" + tipo + "\" y el switch ha funcionado.")
