@@ -47,6 +47,8 @@ class web_bot():
     correo = ""
     asunto = ""
     solicitud = ""
+    tipo_ticket = ""
+    estado_ticket = ""
 
     def __init__(self):  # función de inicialización del bot
         # inicializamos el crawler
@@ -106,32 +108,60 @@ class web_bot():
         select.select_by_visible_text("")
         print("Cambiambiada la vista a \"todos los tickets\".")
         """
-        
-
-    def responde1(self): # manera 1, una mierda
-        input_busqueda = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div/div[2]/label/input")
-        input_busqueda.send_keys("42020") # hay que pasarle parametro luego
-        ticket = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div/table/tbody/tr/td[1]/a")
-        url_ticket = ticket.get_attribute("href")
-        # basta
 
     # prerequisitos: necesita un numero de ticket que exista de la plataforma de tickets y un tipo que puede no estar especificado, para respuestas automáticas de tickets habituales
     def responde2(self, numero_ticket, tipo=None):
         # inicializamos variables
-        print("Limpiamos la solicitud anterior.")
+        print("Se limpian las variables.")
         self.solicitud = ""
+        self.tipo_ticket = ""
+        self.estado_ticket = ""
+
+        if tipo:
+            print("Se entra en el switch de variable tipo: " + tipo)
+            match tipo:
+                case "Documentos":
+                    self.tipo_ticket = "Se ha desbloqueado el documento."
+                    self.estado_ticket = "Resolt"
+                case "Stock":
+                    self.tipo_ticket = "Hay stock en:\n"
+                    self.estado_ticket = "Resolt"
+                case "Devoluciones":
+                    self.tipo_ticket = "No Supera el importe mínimo, con menos de X movimientos."
+                    self.estado_ticket = "Resolt"
+                case "Entradas":
+                    self.tipo_ticket = "Se ha dado entrada, (X) líneas en total."
+                    self.estado_ticket = "Resolt"
+                case "Caso Qsac":
+                    self.tipo_ticket = "Se ha abierto incidente con Quiter"
+                    self.estado_ticket = "En Curs"
+                case "Caso Generix":
+                    self.tipo_ticket = "Se ha abierto incidente con SGA"
+                    self.estado_ticket = "En Curs"
+                case "Contacto Telefonico":
+                    self.tipo_ticket = "Pueden darnos un número de contacto directo para darselo"
+                    self.estado_ticket = "En Curs"
+                case "Creacion referencia":
+                    self.tipo_ticket = "Se ha creado la referencia."
+                    self.estado_ticket = "Resolt"
+                case "Reseteo contraseñas":
+                    self.tipo_ticket = "Hemos pedido que la reseteen, por favor no prueben de entrar con la antigua para no bloquear la nueva antes de tenerla, nos pondremos en contacto en cuanto la tengamos."
+                    self.estado_ticket = "En Curs"
+                case "No Hay Ficheros":
+                    self.tipo_ticket = "Buenos días,\nNos podría indicar la situación actual y actuar según indicaciones:\n1. ¿Le han entrado los ficheros en este momento?\nSI. Infórmenos de la hora estimada de entrada del fichero\nNO. ¿Lo tiene facturado en ET2000?\nSI. Envíenos una captura de pantalla de ET2000 en la que se vea, el número de\npedido, la fecha, el estado y algunas referencias. Necesitaría también una\nimagen del albarán que trae el transportista con el material, en el que se vea\nel  número de boleto y las referencias de las piezas.\nNO. Contacte con su operador logístico y confirme si ha sido facturado.\n"
+                    self.estado_ticket = "En Curs"
+                case _:
+                    print("No hay matches, saltando tipo.")
 
         # cambiamos de pestaña a la del ticket
         print("Se cambia a la pestaña a la del ticket.")
         self.driver.switch_to.new_window("tab")
         self.driver.get("https://soporteproservice.nexe.com/tickets/" + str(numero_ticket))
-        print("Cambiando a la pestaña del ticket.")
 
         # asunto del correo de respuesta
         print("Se copia el asunto del ticket.")
         asunto = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div[1]/h1")
         self.asunto = asunto.text
-        print("Copiado el asunto.")
 
         # solicitud, hay que buscar todas las líneas <p>
         print("Se copia la solicitud.")
@@ -149,14 +179,50 @@ class web_bot():
         # regex para parsear el correo de la string con el contacto
         aux = re.search("((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])", correo.text)
         self.correo = aux.group()
+        
+        if tipo:
+            print("Existe tipo, se escribe la actualización del ticket predeterminada")
+            print("Se rellena la info en actualización del ticket")
+            self.driver.find_element(By.ID, "botonactualizarticekt").click() # "ticekt" el typo es de Jero
+        
+            print("Se añaden las horas")
+            campo_horas = self.driver.find_element(By.ID, "ticketminhores")
+            campo_horas.send_keys("15")
+
+            print("Se añade la info de actualización")
+            campo_titol = self.driver.find_element(By.ID, "subtitolticket")
+            campo_titol.send_keys(tipo)
+
+            print("Se añade la info de actualización")
+            campo_titol = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div[2]/div[2]/form/div/div[2]/div[2]/div[5]/div[2]")
+            campo_titol.send_keys(self.tipo_ticket)
+            
+            print("Se selecciona el estado")
+            campo_estado = self.driver.find_element(By.ID, "estadosactualizar")
+            select = Select(campo_estado)
+            select.select_by_visible_text(self.estado_ticket)
+            
+            print("Se selecciona el tipo de actuación")
+            campo_actuacio = self.driver.find_element(By.ID, "ticketactuacio" )
+            select = Select(campo_actuacio)
+            select.select_by_visible_text("Email")
+            
+            try:
+                print("Se asigna el ticket al usuario actual")
+                campo_asignado = self.driver.find_element(By.ID, "ticketassignado")
+                select = Select(campo_asignado)
+                select.select_by_visible_text(usuario_ps)
+            except:
+                print("Ya estaba el usuario asignado.")
 
         # volvemos a gmail
+        print("Se cambia a la pestaña de Gmail")
         self.driver.switch_to.window(self.gmail_tab)
         # boton redactar
         self.driver.find_element(By.XPATH, "/html/body/div[8]/div[3]/div/div[2]/div[2]/div[1]/div[1]/div/div").click()
         sleep(1)
         # boton redactar(x2), es necesario para que funcione no se porqué
-        #self.driver.find_element(By.XPATH, "/html/body/div[8]/div[3]/div/div[2]/div[2]/div[1]/div[1]/div/div").click()
+        # self.driver.find_element(By.XPATH, "/html/body/div[8]/div[3]/div/div[2]/div[2]/div[1]/div[1]/div/div").click()
 
         # esperamos hasta que todos los elementos del correo hayan cargado (gmail de mierda)
         try:
@@ -165,6 +231,7 @@ class web_bot():
             print("Algo ha salido mal en la espera del correo en blanco.")
 
         # redacta respuesta al correo
+        print("Se escribe la info en los campos del correo correspondientes.")
         self.driver.find_element(By.CSS_SELECTOR, ".agP.aFw").click()
         correo_input = self.driver.find_element(By.CSS_SELECTOR, ".agP.aFw")
         correo_input.send_keys(self.correo)
@@ -178,6 +245,7 @@ class web_bot():
             solicitud_input.send_keys(Keys.UP)
         
         # antes de las 13:00h responde con "buenos días", después responde "buenas tardes"
+        print("Se escribe el buenos días/tardes.")
         if dt.datetime.today().hour < 13:
             solicitud_input.send_keys("Buenos días,\n")
         else:
@@ -185,30 +253,10 @@ class web_bot():
 
         solicitud_input.send_keys("Según solicitud:\n")
         solicitud_input.send_keys(self.solicitud + "\n")
+        print("Se escribe la respuesta predeterminada al ticket.")
+        solicitud_input.send_keys(self.tipo_ticket)        
 
-        # templates de correo automáticas, según parámetro especificado en el comando
-        if tipo:
-            print("entramos en el switch de tipo: " + tipo)
-            match tipo:
-                case "Documentos":
-                    solicitud_input.send_keys("Se ha desbloqueado el documento. \n")
-                case "Stock":
-                    solicitud_input.send_keys("Hay stock en: \n")
-                case "Devoluciones":
-                    solicitud_input.send_keys("No Supera el importe mínimo, con menos de X movimientos. \n")
-                case "Entradas":
-                    solicitud_input.send_keys("Se ha dado entrada, (X) líneas en total. \n")
-                case "No Hay Ficheros":
-                    solicitud_input.send_keys("Buenos días,\nNos podría indicar la situación actual y actuar según indicaciones:\n1. ¿Le han entrado los ficheros en este momento?\nSI. Infórmenos de la hora estimada de entrada del fichero\nNO. ¿Lo tiene facturado en ET2000?\nSI. Envíenos una captura de pantalla de ET2000 en la que se vea, el número de\npedido, la fecha, el estado y algunas referencias. Necesitaría también una\nimagen del albarán que trae el transportista con el material, en el que se vea\nel  número de boleto y las referencias de las piezas.\nNO. Contacte con su operador logístico y confirme si ha sido facturado. \n")
-                case "Caso Qsac":
-                    solicitud_input.send_keys("Se ha abierto incidente con Quiter")
-                case "Caso Generix":
-                    solicitud_input.send_keys("Se ha abierto incidente con SGA")
-                case _:
-                    print("Doesen't match any cases, skipping tipo.")
-            print("Entramos en el if de tipo \"" + tipo + "\" y el switch ha funcionado.")
-
-        # funciona, no lo cambiaré
+        # funciona, no lo cambiaré lmao
         solicitud_input.send_keys(Keys.DOWN)
         solicitud_input.send_keys(Keys.DOWN)
         solicitud_input.send_keys(Keys.DOWN)
@@ -216,20 +264,3 @@ class web_bot():
         solicitud_input.send_keys(Keys.LEFT)
         solicitud_input.send_keys(Keys.LEFT)
         solicitud_input.send_keys(usuario_ps)
-
-#bot = web_bot()
-#bot.login_gmail()
-#bot.login_ps()
-
-"""
-Desbloquear documentos:
-bot.responde2(42135, "doc")
-Consultas devoluciones:
-bot.responde2(42146, "dev")
-Consultas stock:
-bot.responde2(42300, "stock")
-Petición dar entradas:
-bot.responde2(42135, "ent")
-
-bot.responde2(42300)
-"""
