@@ -189,14 +189,16 @@ class web_bot():
             campo_horas = self.driver.find_element(By.ID, "ticketminhores")
             campo_horas.send_keys("15")
 
-            print("Se añade la info de actualización")
+            print("Se añade el tipo de actualización")
             campo_titol = self.driver.find_element(By.ID, "subtitolticket")
             campo_titol.send_keys(tipo)
 
             print("Se añade la info de actualización")
-            campo_titol = self.driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div[2]/div[2]/form/div/div[2]/div[2]/div[5]/div[2]")
+            campo_titol = self.driver.find_element(By.CSS_SELECTOR, ".note-editable")
             campo_titol.send_keys(self.tipo_ticket)
             
+            
+
             print("Se selecciona el estado")
             campo_estado = self.driver.find_element(By.ID, "estadosactualizar")
             select = Select(campo_estado)
